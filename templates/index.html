@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-card">
+    <!-- ─── Theme Toggle ─── -->
+    <div class="theme-toggle-wrapper">
+        <div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light mode" id="themeToggle">
+            <div class="theme-toggle__track">
+                <span class="theme-toggle__icon-dark">🌙</span>
+                <span class="theme-toggle__icon-light">☀️</span>
+                <div class="theme-toggle__thumb"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Header ─── -->
+    <header class="app-header">
+        <span class="app-header__icon">🔑</span>
+        <h1>Candidate Key & Superkey Finder</h1>
+        <p class="app-header__subtitle">
+            Enter attributes and functional dependencies to compute all candidate keys & superkeys.
+        </p>
+        <div class="app-header__arrows">
+            <span>Arrow styles:</span>
+            <code>-></code>
+            <code>→</code>
+            <code>⇒</code>
+            <code>=></code>
+            <code>--></code>
+        </div>
+    </header>
+
+    <!-- ─── Form ─── -->
+    <form method="POST" id="mainForm">
+        <div class="form-group">
+            <label for="attributes">Attributes</label>
+            <input type="text" id="attributes" name="attributes"
+                   placeholder="e.g. A, B, C, D"
+                   value="{{ attributes_input or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="dependencies">Functional Dependencies</label>
+            <textarea id="dependencies" name="dependencies"
+                      placeholder="A -> BC&#10;D -> A&#10;...">{{ dependencies_input or '' }}</textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn--primary">
+                <span>🔍</span> Compute Keys
+            </button>
+            <button type="button" class="btn btn--ghost" onclick="clearForm()">
+                <span>✕</span> Clear
+            </button>
+        </div>
+    </form>
+
+    <!-- ─── Error ─── -->
+    {% if error %}
+        <div class="msg msg--error">
+            <span>⚠️</span> {{ error }}
+        </div>
+    {% endif %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                       RESULTS                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+{% if candidate_keys is defined %}
+<div class="results" id="results">
+    <div class="glass-card" style="margin-top: 1.5rem;">
+
+        <!-- Results Header -->
+        <div class="results__header">
+            <h2>📊 Analysis Results</h2>
+            <span class="results__universe">U = { {{ U }} }</span>
+        </div>
+
+        {% if warning %}
+            <div class="msg msg--warning">
+                <span>⚡</span> {{ warning }}
+            </div>
+        {% endif %}
+
+        <!-- Candidate Keys Card -->
+        <div class="result-card">
+            <div class="result-card__title">
+                <span class="icon">✅</span>
+                Candidate Keys
+                <span class="result-card__count">{{ num_candidate }}</span>
+            </div>
+            <div class="key-tags">
+                {% for ck in candidate_keys %}
+                    <span class="key-tag key-tag--candidate">{ {{ ck }} }</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Superkeys Card -->
+        <div class="result-card">
+            <div class="result-card__title">
+                <span class="icon">📋</span>
+                All Superkeys
+                <span class="result-card__count">{{ num_superkeys }}</span>
+            </div>
+            <div class="superkey-scroll">
+                <div class="key-tags">
+                    {% for sk in superkeys %}
+                        <span class="key-tag">{ {{ sk }} }</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Prime Attributes Card -->
+        <div class="result-card">
+            <div class="result-card__title">
+                <span class="icon">⭐</span>
+                Prime Attributes
+            </div>
+            <span class="attr-display{% if prime == '∅' %} attr-display--empty{% endif %}">
+                { {{ prime }} }
+            </span>
+        </div>
+
+        <!-- Non-Prime Attributes Card -->
+        <div class="result-card">
+            <div class="result-card__title">
+                <span class="icon">⚫</span>
+                Non‑Prime Attributes
+            </div>
+            <span class="attr-display{% if nonprime == '∅' %} attr-display--empty{% endif %}">
+                { {{ nonprime }} }
+            </span>
+        </div>
+
+    </div>
+</div>
+{% endif %}
+
+<!-- ─── Footer ─── -->
+<div class="app-footer">
+    Built for Database Theory · Candidate Key & Superkey Finder
+</div>
+{% endblock %}
